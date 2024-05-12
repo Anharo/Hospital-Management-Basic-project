@@ -3,6 +3,54 @@
 #include <cstring>
 #include <fstream>
 using namespace std;
+struct Department {
+    string name;
+    string head;
+    int charges;
+};
+class administrator 
+{
+    public:
+    Department addepartment()
+    {
+        Department dept;
+        cout<<"Enter name of department you want to add "<<endl;
+        cin>>dept.name;
+        cout<<"Enter name of the Doctor to handle the department "<<endl;
+        cin>>dept.head;
+        cout<<"Enter charges for appointment "<<endl;
+        cin>>dept.charges;
+        return dept;
+        
+    }
+    void storeDepartmentInfo() {
+        Department dept = addepartment();
+        ofstream outputFile("departments.txt", ios::app);
+        if (outputFile.is_open()) {
+            outputFile << "Department Name: " << dept.name << endl;
+            outputFile << "Department Head: " << dept.head << endl;
+            outputFile << "Charges: $" << dept.charges << endl;
+            outputFile << "---------------------------" << endl; 
+            cout << "Department information stored successfully!" << endl;
+        } else {
+            cout << "Error opening the file!" << endl;
+        }
+        outputFile.close(); 
+    }
+    void printDepartmentInfo() {
+        ifstream inputFile("departments.txt");
+        if (inputFile.is_open()) {
+            string line;
+            while (getline(inputFile, line)) {
+                cout << line << endl;
+            }
+            inputFile.close();
+        } else {
+            cout << "Error opening the file!" << endl;
+        }
+    }
+};
+
 
 class Management
 {
@@ -75,8 +123,25 @@ public:
             return 0;
         }
     }
-    
+    int checkother()
+    {
+        ifstream inputFile("departments.txt");
+        if (inputFile.is_open()) {
+        string line;
+        while (getline(inputFile, line)) {
+            cout << line << endl;
+        }
+            cout<<"These are to be added :("<<endl;
+        inputFile.close();
+        return 0;
+        } else {
+        cout << "Error opening the file!" << endl;
+        return 1;
+        }
+    }
 };
+    
+
 
 class PatientDetails : public Management
 {
@@ -110,6 +175,7 @@ public:
     cout << "2. Cardio" << endl;
     cout << "3. ENT" << endl;
     cout << "4. Neurology" << endl;
+    cout << "5. CheckinToBeAddedlist" << endl;
     cin >> departmentChoice;
 
     switch (departmentChoice) {
@@ -128,6 +194,10 @@ public:
         case '4':
             strcpy(department, "neurology");
             k = neurology();
+            break;
+        case '5':
+            strcpy(department, "checkother");
+            k = checkother();
             break;
         default:
             cout << "Invalid department choice!" << endl;
@@ -200,48 +270,66 @@ public:
     
 
 };
+
 int main()
 {
     cout<<"-------------------------------"<<endl;
     cout<<"WELCOME TO ANHARO HOSPITAL :) "<<endl;
     cout<<"-------------------------------"<<endl;
     int y;
-    cout<<"Enter number of records you want to enter:"<<endl;
-    cin>>y;
-
-    PatientRecords records[y];
-    int o=0;
-    while(o==0)
+    cout<<"Enter 1 for Admin portal and 2 for Patient Portal "<<endl;
+    int x;
+    cin>>x;
+    if(x==2)
     {
-    int l,op=0;
-    l=records[op].addPatient();
+         cout<<"Enter number of records you want to enter:"<<endl;
+         cin>>y;
 
-    if(l==1)
+         PatientRecords records[y];
+         int o=0;
+         while(o==0)
+         {
+         int l,op=0;
+         l=records[op].addPatient();
+
+        if(l==1)
+        {
+           records[op].writeToFile(records[op]);
+           records[op].calculateBilling();
+         int am=0;
+         cout<<"Enter Amount to be paid for appointment.."<<endl;
+         cin>>am;
+         float paymentAmount = am;
+         const char* paymentMethod = "Credit Card";
+         records[op].makePayment(paymentAmount, paymentMethod);
+         records[op].displayPatients();
+        }
+        else{
+             cout<<"WE THANK YOU FOR YOU INFO WE HAVE NOW REMOVED YOUR INFORMATION FROM OUR DATABASE.."<<endl;
+        }
+         op++;
+         if(op<y){
+         cout<<"Should We Stop? 1 to 'Stop' 0 to 'Continue': "<<endl;
+         cin>>o;
+         }
+         else{
+         cout<<"\nThankyou Entered total " << op << " entries.."<<endl;
+         o=1;
+         }
+         }
+
+
+         cout<<"Thankyou for having us hope your speedy recovery"; 
+    }
+    else if(x==1)
     {
-      records[op].writeToFile(records[op]);
+        administrator admin;
+        admin.storeDepartmentInfo();
+        admin.printDepartmentInfo();
     }
-    else{
-        cout<<"WE THANK YOU FOR YOU INFO WE HAVE NOW REMOVED YOUR INFORMATION FROM OUR DATABASE.."<<endl;
+    else
+    {
+        cout<<"Wrong input..";
     }
-    records[op].calculateBilling();
-    int am=0;
-    cout<<"Enter Amount to be paid for appointment.."<<endl;
-    cin>>am;
-    float paymentAmount = am;
-    const char* paymentMethod = "Credit Card";
-    records[op].makePayment(paymentAmount, paymentMethod);
-    records[op].displayPatients();
-    op++;
-    if(op<y){
-    cout<<"Should We Stop? 1 to 'Stop' 0 to 'Continue': "<<endl;
-    cin>>o;
-    }
-    else{
-    cout<<"\nThankyou Entered total " << op << " entries.."<<endl;
-    o=1;
-    }
- }
-    
-    cout<<"Thankyou for having us hope your speedy recovery";
-    return 0;
+ return 0;
 }
